@@ -1,0 +1,12 @@
+# Nitrosend CLI First-Send Run Report
+
+- **Environment & Exact Commands:** Windows 11 x64 (`10.0.26100`), Node.js `v22.17.0`, npm `10.9.2`, `@nitrosend/cli` `0.3.9` (`nitrosend --version` -> `0.3.9`). Commands executed in order:
+  1. `npm install -g @nitrosend/cli@latest`
+  2. `printf '%s' "$PASSWORD" | nitrosend signup --email <redacted> --password-stdin --utm-source frantic --utm-medium bounty --utm-campaign nitrosend-oss-v1`
+  3. `nitrosend whoami` and `nitrosend status` (returned `Brand.Sid: 572d30a8f765f0427eecfe86`, `Admission status: denied`, `Reason code: sender_not_ready`, `Suggested subdomain: ducanh3005`).
+  4. `POST https://api.nitrosend.com/v1/my/brands/572d30a8f765f0427eecfe86/prepare_sending {"subdomain":"ducanh3005"}` -> activated `hello@ducanh3005.nitrosend.net` (`status: ready`).
+  5. `nitrosend send --to proof@dogfood.nitrosend.net --subject "CLI first-send verification from ducanh3005" --body "Testing first send via @nitrosend/cli 0.3.9 on Windows 11 with Node v22.17.0." --idempotency-key cli-first-send-ducanh3005-20261022 --json` -> message id `5169189`, status `queued` at `2026-10-22 16:59:12 UTC`.
+- **Time from Install to First Send:** 2.57 minutes (install started at `2026-10-22T16:56:37.684Z`, send admitted at `2026-10-22T16:59:12Z`, CLI finished at `2026-10-22T16:59:24.756Z`).
+- **Slowest Step:** Activating the hosted brand subdomain after `nitrosend signup`, which required inspecting `nitrosend status` for the brand SID and calling the sender preparation step before `nitrosend send` would pass admission.
+- **Doc & CLI Guidance Gap (Exact Repro):** After running `nitrosend signup --email <you> --password-stdin` per `https://docs.nitrosend.com/cli/install`, running `nitrosend status` shows `Reason code: sender_not_ready` and prints `Suggested tool call: Tool: nitro_manage_domains Input: Operation: prepare_brand_subdomain` without `params.subdomain`, even though `Brand subdomain.Suggested subdomain` is already populated. Moreover, `https://docs.nitrosend.com/cli/install` and the CLI `README.md` omit the required sender-activation step between `nitrosend signup` and `nitrosend send`.
+- **One Change I Would Make:** Populate `params: { "subdomain": "<suggested_subdomain>" }` in the `Suggested tool call` block of `nitrosend status`, and document `nitrosend mcp tools call nitro_manage_domains --args '{"operation":"prepare_brand_subdomain","params":{"subdomain":"<name>"}}'` right after `nitrosend signup` on `https://docs.nitrosend.com/cli/install`.
