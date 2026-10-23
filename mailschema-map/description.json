@@ -1,0 +1,75 @@
+{
+  "@context": "https://mailschema.org/contexts/map-0.3.jsonld",
+  "@type": "MailAction",
+  "profile": "https://mailschema.org/profiles/map/0.3",
+  "type": {
+    "id": "https://mailschema.org/types/publication-approval",
+    "version": "0.1",
+    "contractDigest": "sha-256:de91a49de4cba91209be253456e7c56709791fff877a060560d4eada0cc9468c"
+  },
+  "@id": "urn:uuid:019a1158-8c42-7e90-b412-9034dc8172a5",
+  "issuedAt": "2026-10-23T13:45:00Z",
+  "expiresAt": "2026-10-24T13:45:00Z",
+  "inLanguage": "en",
+  "service": {
+    "id": "https://release.ducanh-ops.dev",
+    "tenant": "urn:ducanh-ops:tenant:core-platform"
+  },
+  "recipient": "ducanh3005@ducanh-ops.dev",
+  "subject": {
+    "id": "urn:ducanh-ops:release-note:2026-10-v2-4",
+    "title": "Publish v2.4.0 ledger reconciliation release notes"
+  },
+  "terms": {
+    "id": "urn:ducanh-ops:proposal:pub-2026-1023-01",
+    "version": "pub-2026-1023-01-r2"
+  },
+  "human": {
+    "url": "https://release.ducanh-ops.dev/approvals/pub-2026-1023-01"
+  },
+  "details": {
+    "summary": "Publish the v2.4.0 ledger reconciliation release notes to the public changelog and restricted partner portal.",
+    "requester": "Release engineering pipeline (ducanh3005)",
+    "content": {
+      "id": "urn:ducanh-ops:artifact:changelog-v2-4-0",
+      "revision": "git-8f4d2c91a0b3",
+      "title": "v2.4.0 Ledger Reconciliation Release Notes",
+      "digest": "sha-256:7c9e4102a5b8d3f61920e4a8c7b6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8"
+    },
+    "destinations": [
+      {
+        "id": "https://docs.ducanh-ops.dev/changelog/v2-4-0",
+        "account": "urn:ducanh-ops:account:public-docs",
+        "visibility": "public",
+        "replacesRevision": "git-3a1b9e44c2d0"
+      },
+      {
+        "id": "https://partners.ducanh-ops.dev/releases/v2-4-0",
+        "account": "urn:ducanh-ops:account:partner-portal",
+        "visibility": "restricted",
+        "audience": {
+          "id": "urn:ducanh-ops:audience:tier1-integrators",
+          "revision": "acl-2026-10-19-v3"
+        }
+      }
+    ],
+    "schedule": {
+      "mode": "scheduled",
+      "at": "2026-10-23T18:00:00Z"
+    }
+  },
+  "operations": [
+    {
+      "id": "approve"
+    },
+    {
+      "id": "decline",
+      "capability": {
+        "url": "https://release.ducanh-ops.dev/cap/decline/pub-2026-1023-01"
+      }
+    },
+    {
+      "id": "request-changes"
+    }
+  ]
+}
