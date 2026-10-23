@@ -1,0 +1,13 @@
+# MAP 0.3 Publication Approval Validation Run
+
+- **Install and commands**: Ran `npm install mailschema@0.3.2` on `Node.js v22.17.0` (`npm 10.9.2`), fetched `https://mailschema.org/artifacts/map-0.3/contracts/publication-approval-0.1.json`, authored `description.json` (`Publication Approval 0.1`), and ran `npx mailschema@0.3.2 description description.json --contract publication-approval-0.1.json`, which printed `Valid MAP 0.3 description urn:uuid:019a1158-8c42-7e90-b412-9034dc8172a5` and `sha-256:c5435029aa5b1094740e89f78aef4ad548cb4d2f632dca650c8c565fb8e7e977`.
+- **Time to valid description**: `4 minutes` from package install to a passing `Publication Approval 0.1` description covering both `public` (`replacesRevision`) and `restricted` (`audience`) destinations plus a `scheduled` timestamp and `decline` capability URL.
+- **Broken field and exact CLI error**: Removed `audience` from `/details/destinations/1` (where `visibility` is `"restricted"`) and ran `npx mailschema@0.3.2 description description.json --contract publication-approval-0.1.json`. It exited with status `1` and printed:
+  ```text
+  /details/destinations/1: must have required property 'audience'
+  /details/destinations/1: must match "then" schema
+  ```
+  Restored `audience` and re-verified the digest.
+- **Step that slowed me most**: Checking the shape of `operations[1].capability` between `publication-approval-0.1.json` (which declares `capability: { kind: "refusal", maxLifetimeSeconds: 604800 }`) and `mailschema/core.schema.json` (where a description's operation entry accepts only `capability: { url }` matching the `service.id` HTTPS origin).
+- **Defect and exact repro**: `contractErrors(value)` in `dist/core/contract.js` enforces `CONTRACT_MAX_BYTES` (`262144`) on in-memory objects, but `descriptionErrors(value)` in `dist/core/description.js` (and `contract.descriptionErrors(description)`) omits the `DESCRIPTION_MAX_BYTES` (`65536`) check when given an object instead of bytes. Repro: expanding `details.destinations` to 20 valid items (`75,744` UTF-8 bytes) causes `descriptionErrors(d)` and `contract.descriptionErrors(d)` to return `[]`, whereas `parseDescription(JSON.stringify(d))` throws `The JSON exceeds 65536 bytes.`.
+- **One change I would make**: Enforce `DESCRIPTION_MAX_BYTES` inside `descriptionErrors(value)` so in-memory validation matches `contractErrors(value)` and `parseDescription(input)`, and filter Ajv's noisy `must match "then" schema` line in `schemaErrors()` when the underlying `required` error is already reported.
